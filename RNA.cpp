@@ -1,47 +1,67 @@
 #include "RNA.h"
 #include <stdio.h>
 #include <string.h>
+#include <iostream>
 
-//char convert(int*);
-//void convert(int*, char);
-
-void RNA::add(char nukl) { //strategy of adding : *2
-	if (usedlen < totallen) RNA::place(usedlen, nukl);
-	else {
-		char* array = new char[2 * (totallen / amountofnukl)];
-		strcpy(array, rna);
-		delete[] rna;
-		char* rna = array;
-		RNA::place(usedlen, nukl);
-		totallen = totallen * 2;
-	}
-	usedlen++;
+//void RNA::add(char nukl) { //strategy of adding : *2
+//	if (usedlen < totallen) RNA::place(usedlen, nukl);
+//	else {
+//		char* array = new char[2 * (totallen / amountofnukl)];
+//		strcpy(array, rna);
+//		delete[] rna;
+//		char* rna = array;
+//		RNA::place(usedlen, nukl);
+//		totallen = totallen * 2;
+//	}
+//	usedlen++;
+//}
+char convert(int* code) {
+	if (code[0] == 0 && code[1] == 0) return 'A';
+	if (code[0] == 0 && code[1] == 1) return 'G';
+	if (code[0] == 1 && code[1] == 0) return 'C';
+	if (code[0] == 1 && code[1] == 1) return 'U';
 }
 
-RNA::RNA() {
+void convert(int* code, char nukl) {
+	if (nukl == 'A') {
+		code[0] = 0;
+		code[1] = 0;
+	}
+	if (nukl == 'G') {
+		code[0] = 0;
+		code[1] = 1;
+	}
+	if (nukl == 'C') {
+		code[0] = 1;
+		code[1] = 0;
+	}
+	if (nukl == 'U') {
+		code[0] = 1;
+		code[1] = 1;
+	}
+}
+
+RNA::RNA() { 
 	rna = new char;
 	usedlen = 0;
 	totallen = 0;
-	lastindex = 0;
 }
-RNA::RNA(RNA& orig) {
+RNA::RNA(RNA& orig) { 
 	unsigned int max = orig.totallen / amountofnukl;
 	rna = new char[max + 1];
-	for (unsigned int i = 1; i <= max; i++) {
+	for (unsigned int i = 0; i < max; i++) {
 		rna[i] = orig.rna[i];
 	}
 	usedlen = orig.usedlen;
 	totallen = orig.totallen;
-	lastindex = orig.lastindex;
 }
 
-RNA::RNA(unsigned int length, char nukl= 'A') { //0 - adenin, 1 - guanin, 2 - citasin, 3 - uracil
-	unsigned int arsize = length / amountofnukl;
-	if (length % amountofnukl != 0) arsize++;
+RNA::RNA(unsigned int length, char nukl= 'A') { //0 - adenin, 1 - guanin, 2 - citasin, 3 - uracil checked
+	unsigned int arsize = (length - 1) / amountofnukl;
+	if ((length-1) % amountofnukl != 0) arsize++;
 	rna = new char[arsize+1];
 	totallen = arsize * amountofnukl;
 	usedlen = length;
-	lastindex = 0;
 	int* code = new int[2];
 	convert(code, nukl);
 	unsigned int i = 0;
@@ -57,10 +77,11 @@ RNA::RNA(unsigned int length, char nukl= 'A') { //0 - adenin, 1 - guanin, 2 - ci
 		rna[charcount] = (((rna[charcount] << 1) + code[0]) << 1 )+ code[1];
 		spacecount--;
 	}
+	rna[charcount] = rna[charcount] << (spacecount * 2);
 	delete[] code;
 }
 
-RNA::~RNA() {
+RNA::~RNA() { 
 	delete[] rna;
 }
 
@@ -90,12 +111,11 @@ void RNA::place(unsigned int index, char nukl) {
 		copy = copy | mask2;
 		rna[charnum] = copy;
 		delete[] code;
-	
 }
 
-char RNA::get(unsigned int index) {
+char RNA::get(unsigned int index) const {
 	unsigned int charnum = (index - 1) / amountofnukl;
-	unsigned int pos = (index - 1) % amountofnukl; //-1??
+	unsigned int pos = (index - 1) % amountofnukl; 
 	char copy = rna[charnum];
 	int move = amountofnukl - pos - 1;
 	copy = copy >> move * 2;
@@ -107,18 +127,43 @@ char RNA::get(unsigned int index) {
 	return nukl;
 }
 
-void RNA::operator+(RNA & added) {
+RNA RNA::operator+(const RNA & added) {
+	RNA result(*this);
+	result.usedlen = usedlen + added.usedlen;
+	unsigned int i = 1;
 	if (added.usedlen + usedlen > totallen) {
-		char* array = new char[usedlen + added.usedlen];
-		strcpy(array, rna);
-		delete[] rna;
-		char* rna = array;
+		unsigned int arsize = (usedlen + added.usedlen - 1) / amountofnukl;
+		if ((usedlen + added.usedlen - 1) % amountofnukl != 0) arsize++;
+		char* array = new char[arsize];
+		result.rna = array;
+		for (i; i <= usedlen; i++) {
+			char nukl = get(i);
+			result.place(i, nukl); 
+		}
+		result.totallen = arsize * amountofnukl;
 	}
-	unsigned int i = 0;
-	for (i; i < added.usedlen; i++) RNA::add(added.rna[i]);
-	added.~RNA();
+	i = 1;
+	for (i; i <= added.usedlen; i++) {
+		char nukl = added.get(i);
+		result.place(i + usedlen, nukl); 
+	}
+	return result;
 }
+RNA RNA::operator+(char nukl) { //strategy of adding : *2
+	RNA result(*this);
+	if (usedlen < totallen) result.place(usedlen + 1, nukl);
+	else {
+		char* array = new char[2 * (totallen / amountofnukl)];
+		strcpy(array, rna);
+		delete[] result.rna;
+		result.rna = array;
+		result.place(usedlen + 1, nukl);
+		result.totallen = totallen * 2;
+	}
+	result.usedlen++;
 
+	return result;
+}
 bool RNA::operator==(RNA & another) {
 	if (usedlen != another.usedlen) return 1;
 	else {
@@ -137,12 +182,9 @@ RNA RNA::split(unsigned int index) {
 	unsigned int i = 0;
 	for (i; i < usedlen - index; i++) {
 		char nukl = get(i + index + 1);
-		second.place(i + index + 1, nukl);
+		second.place(i + 1, nukl);
 	}
 	usedlen = index;
-	second.totallen = (usedlen - index) / amountofnukl;
-	if ((usedlen - index) % amountofnukl != 0) second.totallen++;
-	second.usedlen = usedlen - index;
 	return second;
 }
 
@@ -163,7 +205,7 @@ bool RNA::iscomplementary(RNA & another) {
 	return 0;
 }
 
-RNA RNA::operator!() {
+RNA RNA::operator!() { 
 	unsigned int i;
 	RNA second(usedlen);
 	for (i = 0; i < usedlen; i++) {
@@ -179,9 +221,9 @@ RNA RNA::operator!() {
 	return second;
 }
 
-char RNA::operator[](unsigned int index) const {
+char RNA::operator[](unsigned int index) const { 
 	unsigned int charnum = (index - 1) / amountofnukl;
-	unsigned int pos = (index - 1) % amountofnukl; //-1??
+	unsigned int pos = (index - 1) % amountofnukl; 
 	char copy = rna[charnum];
 	int move = amountofnukl - pos - 1;
 	copy = copy >> move;
@@ -193,43 +235,44 @@ char RNA::operator[](unsigned int index) const {
 	return nukl;
 }
 
-char& RNA::operator[](unsigned int index) {
-	unsigned int charnum = (index - 1) / amountofnukl;
-	unsigned int pos = (index - 1) % amountofnukl;
-	lastindex = index;
-	char nukl = get(index);
+RNA RNA::operator=(const RNA & second) {
+	usedlen = second.usedlen;
+	totallen = second.totallen;
+	if (rna != NULL) delete[] rna;
+	int arsize = totallen / amountofnukl;
+	rna = new char[arsize];
+	for (int i = 0; i < arsize; i++) {
+		rna[i] = second.rna[i];
+	}
+	return *this;
+}
+Reference::Reference(RNA & rna1, unsigned int indx) {
+	index = indx;
+	link = &rna1;
+	std::cout << "ref constructor finished\n";
+}
+
+Reference::~Reference() { 
+	std::cout << "ref destructor finished\n";
+}
+
+Reference& Reference::operator=(Reference second) { 
+	(*link).place(index, (second.link)->get(second.index));
+	return *this;
+}
+
+Reference& Reference::operator=(char nukl) { 
+	(*link).place(index, nukl);
+	return *this;
+}
+
+Reference RNA::operator[](unsigned int index) { 
+	Reference nukl(*this, index);
 	return nukl;
 }
 
-//RNA& RNA::operator=(char& nukl) {
-//	unsigned int charnum = (lastindex - 1) / amountofnukl;
-//	unsigned int pos = (lastindex - 1) % amountofnukl;
-//	place(lastindex, nukl);
-//	return *this;
-//}
-//char& operator=(char& nukl1, )
-char convert(int* code) {
-	if (code[0] == 0 && code[1] == 0) return 'A';
-	if (code[0] == 0 && code[1] == 1) return 'G';
-	if (code[0] == 1 && code[1] == 0) return 'C';
-	if (code[0] == 1 && code[1] == 1) return 'U';
+Reference::operator char() {
+	char nukl = (*link).get(index);
+	return nukl;
 }
 
-void convert(int* code, char nukl) {
-	if (nukl == 'A') {
-		code[0] = 0;
-		code[1] = 0;
-	}
-	if (nukl == 'G') {
-		code[0] = 0;
-		code[1] = 1;
-	}
-	if (nukl == 'C') {
-		code[0] = 1;
-		code[1] = 0;
-	}
-	if (nukl == 'U') {
-		code[0] = 1;
-		code[1] = 1;
-	}
-}
