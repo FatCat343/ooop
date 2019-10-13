@@ -30,9 +30,9 @@ void convert(int* code, char nukl) {
 }
 
 RNA::RNA() { 
-	rna = new char;
+	rna = new char [1];
 	usedlen = 0;
-	totallen = 0;
+	totallen = 4;
 }
 RNA::RNA(const RNA& orig) { 
 	size_t max = orig.totallen / amountofnukl;
@@ -70,6 +70,7 @@ RNA::RNA(size_t length, char nukl= 'A') { //0 - adenin, 1 - guanin, 2 - citasin,
 }
 
 RNA::~RNA() { 
+	//std::cout << "destructor finished\n";
 	delete[] rna;
 }
 
@@ -148,8 +149,12 @@ RNA RNA::operator+(char nukl) { //strategy of adding : *2
 	}
 	else {
 		RNA result(totallen * 2);
+		size_t arsize = totallen / amountofnukl;
+		for (size_t i = 0; i < arsize; i++) {
+			result.rna[i] = this->rna[i];
+		}
 		result.place(usedlen + 1, nukl);
-		result.usedlen++;
+		result.usedlen = usedlen ++;
 		return result;
 	}
 }
@@ -234,6 +239,7 @@ char RNA::operator[](size_t index) const {
 }
 
 RNA& RNA::operator=(const RNA & second) {
+	//std::cout << "= get " << second.usedlen << "\n";
 	if (*this == second) return *this;
 	else {
 		if (totallen != second.totallen){
@@ -247,17 +253,18 @@ RNA& RNA::operator=(const RNA & second) {
 		for (size_t i = 0; i < arsize; i++) {
 			rna[i] = second.rna[i];
 		}
+		//std::cout << "= returned " << usedlen << "\n";
 		return *this;
 	}
 }
 Reference::Reference(RNA & rna1, size_t indx) {
 	index = indx;
 	link = &rna1;
-	std::cout << "ref constructor finished\n";
+	//std::cout << "ref constructor finished\n";
 }
 
 Reference::~Reference() { 
-	std::cout << "ref destructor finished\n";
+	//std::cout << "ref destructor finished\n";
 }
 
 Reference& Reference::operator=(Reference second) { 
