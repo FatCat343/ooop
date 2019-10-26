@@ -34,17 +34,25 @@ RNA::RNA() {
 	usedlen = 0;
 	totallen = 4;
 }
+RNA::RNA(size_t length) {
+	size_t arsize = (length) / amountofnukl;
+	if ((length) % amountofnukl != 0) arsize++;
+	rna = new char[arsize];
+	usedlen = 0;
+	totallen = arsize * amountofnukl;
+}
 RNA::RNA(const RNA& orig) { 
 	size_t max = orig.totallen / amountofnukl;
-	rna = new char[max + 1];
-	for (size_t i = 0; i < max; i++) {
-		rna[i] = orig.rna[i];
-	}
+	rna = new char[max];
+	//for (size_t i = 0; i < max; i++) {
+	//	rna[i] = orig.rna[i];
+	//}
+	memcpy(rna, orig.rna, orig.totallen / 4);
 	usedlen = orig.usedlen;
 	totallen = orig.totallen;
 }
 
-RNA::RNA(size_t length, char nukl= 'A') { //0 - adenin, 1 - guanin, 2 - citasin, 3 - uracil checked
+RNA::RNA(size_t length, char nukl) { //0 - adenin, 1 - guanin, 2 - citasin, 3 - uracil checked
 	size_t arsize = (length) / amountofnukl;
 	if ((length) % amountofnukl != 0) arsize++;
 	rna = new char[arsize];
@@ -149,10 +157,12 @@ RNA RNA::operator+(char nukl) { //strategy of adding : *2
 	}
 	else {
 		RNA result(totallen * 2);
+		result.totallen = totallen * 2;
 		size_t arsize = totallen / amountofnukl;
-		for (size_t i = 0; i < arsize; i++) {
-			result.rna[i] = this->rna[i];
-		}
+		//for (size_t i = 0; i < arsize; i++) {
+		//	result.rna[i] = this->rna[i];
+		//}
+		memcpy(result.rna, rna, totallen / 4);
 		result.place(usedlen + 1, nukl);
 		result.usedlen = usedlen ++;
 		return result;
@@ -175,30 +185,40 @@ bool RNA::operator!=(const RNA& another) {
 }
 
 RNA RNA::split(size_t index) {
-	size_t charnum = (index - 1) / amountofnukl;
-	size_t pos = (index - 1) % amountofnukl;
 	RNA second(usedlen - index);
-	size_t i = 0;
-	for (i; i < usedlen - index; i++) {
-		char nukl = get(i + index + 1);
-		second.place(i + 1, nukl);
+	size_t i = index + 1;
+	size_t arsize = (index) / amountofnukl;
+	if ((index) % amountofnukl != 0) arsize++;
+	char* array = new char[arsize];
+	memcpy(array, rna, arsize);
+	for (i; i <= usedlen; i++) {
+		char nukl = get(i);
+		second.place(i - index, nukl);
 	}
+	delete[] rna;
+	rna = array;
 	usedlen = index;
+	if (index % amountofnukl == 0) totallen = index;
+	else totallen = index + amountofnukl;
 	return second;
 }
 
 bool RNA::iscomplementary(RNA & another) {
 	if (usedlen != another.usedlen) return 0;
 	else {
-		size_t i = 0;
+		size_t i = 1;
 		int* code1 = new int[2];
 		int* code2 = new int[2];
-		for (i; i < usedlen; i++) {
-			char nukl1 = get(i + 1);
-			char nukl2 = another.get(i + 1);
+		for (i; i <= usedlen; i++) {
+			char nukl1 = get(i);
+			char nukl2 = another.get(i);
 			convert(code1, nukl1);
 			convert(code2, nukl2);
-			if (2 * code1[0] + code1[1] + 2 * code2[0] + code2[1] != amountofnukl-1) return 0;
+			if (2 * code1[0] + code1[1] + 2 * code2[0] + code2[1] != amountofnukl - 1) {
+				delete[] code1;
+				delete[] code2;
+				return 0;
+			}
 		}
 		delete[] code1;
 		delete[] code2;
@@ -239,7 +259,6 @@ char RNA::operator[](size_t index) const {
 }
 
 RNA& RNA::operator=(const RNA & second) {
-	//std::cout << "= get " << second.usedlen << "\n";
 	if (*this == second) return *this;
 	else {
 		if (totallen != second.totallen){
@@ -253,7 +272,6 @@ RNA& RNA::operator=(const RNA & second) {
 		for (size_t i = 0; i < arsize; i++) {
 			rna[i] = second.rna[i];
 		}
-		//std::cout << "= returned " << usedlen << "\n";
 		return *this;
 	}
 }

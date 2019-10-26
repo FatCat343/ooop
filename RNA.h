@@ -20,6 +20,7 @@ class RNA{
 public:
 	friend class Reference;
 	RNA();
+	RNA(size_t);
 	RNA(size_t, char);
 	RNA(const RNA &);
 	~RNA();
@@ -28,7 +29,6 @@ public:
 	bool operator==(const RNA &); //сравнение
 	bool operator!=(const RNA&);
 	void place(size_t, char);
-	//void add(char);
 	char get(size_t) const;
 	RNA split(size_t);
 	bool iscomplementary(RNA &);
