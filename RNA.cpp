@@ -38,7 +38,7 @@ RNA::RNA(size_t length) {
 	size_t arsize = (length) / amountofnukl;
 	if ((length) % amountofnukl != 0) arsize++;
 	rna = new char[arsize];
-	usedlen = 0;
+	usedlen = length;
 	totallen = arsize * amountofnukl;
 }
 RNA::RNA(const RNA& orig) { 
@@ -275,6 +275,7 @@ RNA& RNA::operator=(const RNA & second) {
 		return *this;
 	}
 }
+
 Reference::Reference(RNA & rna1, size_t indx) {
 	index = indx;
 	link = &rna1;

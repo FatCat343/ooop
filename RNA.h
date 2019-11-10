@@ -22,6 +22,8 @@ public:
 	RNA();
 	RNA(size_t);
 	RNA(size_t, char);
+	size_t RNAusedlen() const { return usedlen; }
+	size_t RNAtotallen() const { return totallen; }
 	RNA(const RNA &);
 	~RNA();
 	RNA operator+(const RNA &); //соединение 2 цепочек
@@ -36,6 +38,7 @@ public:
 	char operator[](size_t) const; //same as get
 	Reference operator[](size_t);
 	RNA& operator=(const RNA&);
+
 private:
 	char* rna;
 	size_t usedlen;

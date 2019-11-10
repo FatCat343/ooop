@@ -8,7 +8,7 @@ TEST(SampleTest2, LargeTest) {
 	_CrtMemCheckpoint(&s1);
 	{
 		RNA rna1;
-		for (size_t i = 1; i < 50000; i++) {
+		for (size_t i = 1; i < 1000000; i++) {
 			rna1 = rna1 + 'C';
 		}
 		char nukl = rna1[23];
@@ -20,6 +20,21 @@ TEST(SampleTest2, LargeTest) {
 	}
 }
 
+TEST(SampleTest2, EqualityTest) {
+	_CrtMemState s1, s2, s3;
+	_CrtMemCheckpoint(&s1);
+	{
+		RNA rna1(998, 'C');
+		RNA rna2 = rna1;
+		rna2 = rna2;
+		if (rna1 == rna2);
+		else EXPECT_EQ(1, 0) << "equality fails";
+	}
+	_CrtMemCheckpoint(&s2);
+	if (_CrtMemDifference(&s3, &s1, &s2)) {
+		EXPECT_EQ(1, 0) << "detected memory leaks";
+	}
+}
 TEST(SampleTest2, ConstructorTest) {
 	_CrtMemState s1, s2, s3;
 	_CrtMemCheckpoint(&s1);
@@ -103,6 +118,11 @@ TEST(SampleTest2, SplitTest) {
 			else nukl = rna2.get(i - 203);
 			EXPECT_EQ(nukl, 'G') << "split failed. wrong output on";
 		}
+	}
+	{
+		RNA rna1;
+		RNA rna2 = rna1.split(0);
+		EXPECT_EQ(rna2.RNAusedlen(), 0);
 	}
 	_CrtMemCheckpoint(&s2);
 	if (_CrtMemDifference(&s3, &s1, &s2)) EXPECT_EQ(1, 0) << "detected memory leaks";

@@ -8,10 +8,10 @@
 #include <crtdbg.h>
 using namespace std;
 int main() {
-	RNA rna1(1000, 'A');
+	//RNA rna1(1000, 'A');
 	//RNA rna2(499, 'C');
 	//RNA rna4(10, 'A');
-	std::cout << rna1[5];
+	//std::cout << rna1[5];
 	//RNA rna3 = rna2 + rna2 + 'C' + 'C';
 	//rna2[5] = 'A';
 	//rna1[5] = 'U';
@@ -59,5 +59,10 @@ int main() {
 	//else cout << "no memory leaks";
 	////cout << 1;
 	//return 0;
-
+	//{
+	//	RNA rna1;
+	//	RNA rna2 = rna1.split(0);
+	//	size_t a = rna2.RNAtotallen();
+	//	cout << a;
+	//}
 }
