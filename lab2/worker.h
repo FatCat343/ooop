@@ -1,45 +1,59 @@
 #pragma once
+#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <fstream>
 #include <cstring>
 #include <string>
 #include <stdlib.h>
+#include <algorithm>
+#include <vector>
+#include <sstream>
 
 using namespace std;
 
 class worker {
-protected:
-	string data;
+//protected:
+//	string data;
 public:
-	virtual void ability(string) = 0;
+	virtual string ability(string, string) = 0;
 };
 
-class readfile : public worker {
+class readfile_worker : public worker {
 public:
-	virtual void ability(string);
+	virtual string ability(string, string);
 };
 
-class writefile : public worker {
+class writefile_worker : public worker {
 public:
-	virtual void ability(string);
+	virtual string ability(string, string);
 };
 
-class grep : public worker {
+class grep_worker : public worker {
 public:
-	virtual void ability(string);
+	virtual string ability(string, string);
 };
 
-class sort : public worker {
+class sort_worker : public worker {
 public:
-	virtual void ability(string);
+	virtual string ability(string, string);
 };
 
-class replace : public worker {
+class replace_worker : public worker {
 public:
-	virtual void ability(string);
+	virtual string ability(string, string);
 };
 
-class dump : public worker {
+class dump_worker : public worker {
 public:
-	virtual void ability(string);
+	virtual string ability(string, string);
 };
+
+//template <typename T>
+//class Factory {
+//public:
+//	Factory() {};
+//	~factory() {};
+//	T& Create() {
+//		return new T;
+//	}
+//};

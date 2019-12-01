@@ -10,7 +10,6 @@ class Parser {
 public:
 	Parser();
 	~Parser();
-	Parser(string);
 	bool EndOfCom();
 	bool EndOfFile();
 	size_t getnum();
