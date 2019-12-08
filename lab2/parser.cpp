@@ -4,6 +4,7 @@ Parser::~Parser() { file.close(); }
 Parser::Parser() {
 	file.open("workflow.txt");
 	status = -1;
+	num = 0;
 }
 
 bool Parser::EndOfCom() {
@@ -18,8 +19,8 @@ bool Parser::EndOfFile() {
 void Parser::newline() {
 	string line;
 	getline(file, line);//check on eof
-	cout << line << endl;
-	if (line == "desc" || line == "csed") {
+	//cout << line << endl;
+	if ((line == "desc") || (line == "csed")) {
 		if (line == "desc") status = 0;
 		else status = 1;
 	}
@@ -37,7 +38,7 @@ void Parser::newline() {
 						finish = finish + 2;
 					}
 					if (words == 2) com = data;
-					cout << "data is " << data << endl;
+					//cout << "data is " << data << endl;
 					finish++;
 					start = finish;
 				}
@@ -45,8 +46,13 @@ void Parser::newline() {
 			}
 			if (start <= line.length()) {
 				data = line.substr(start, line.length() - start);
-				if (words == 2) args = data;
-				if (words == 1) com = line.substr(start, line.length() - start);
+				if (words == 2) {
+					args = data;
+				}
+				if (words == 1) {
+					com = line.substr(start, line.length() - start);
+					args.clear();
+				}
 			}
 			//size_t start = 0, finish = 0;
 			//while (line[finish] != ' ') finish++;
@@ -62,14 +68,16 @@ void Parser::newline() {
 			//if (line.length() > start) args = line.substr(start, line.length() - start);
 			//else args.clear();
 		}
-		if (status == 1) cout << "misssed end of command";// return error
+		//if (status == 1) cout << "misssed end of command";// return error
 	}
 }
 
 size_t Parser::getnum() {
 	return num;
 }
-
+int Parser::getstatus() {
+	return status;
+}
 string Parser::getcom() {
 	return com;
 }

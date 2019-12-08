@@ -15,6 +15,7 @@ public:
 	size_t getnum();
 	string getcom();
 	string getargs();
+	int getstatus();
 	void newline();
 	size_t InstructionNum();
 private:

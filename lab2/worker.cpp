@@ -1,6 +1,9 @@
 #include "worker.h"
-
+#include "validator.h"
 string readfile_worker::ability(string data, string args) {
+	read_validator val;
+	val.input_validation(args);
+	
 	ifstream file;
 	string text;
 	string line;
@@ -15,15 +18,22 @@ string readfile_worker::ability(string data, string args) {
 }
 
 string writefile_worker::ability(string data, string args) {
-	fstream file;
+	write_validator val;
+	val.input_validation(args);
+	
+	ofstream file;
 	file.open(args);
 	file << data;
+	file.close();
+	data.clear();
 	return data;
 }
 
 string grep_worker::ability(string data, string args) {
-	string line;
+	grep_validator val;
+	val.input_validation(args);
 	
+	string line;
 	char * newdata = const_cast<char*>(data.c_str());
 	//strcpy(newdata, data.c_str());
 	//cout << data << endl;
@@ -48,6 +58,9 @@ string grep_worker::ability(string data, string args) {
 }
 
 string sort_worker::ability(string data, string args) {
+	sort_validator val;
+	val.input_validation(args);
+
 	vector <string> text;
 	string line;
 	//cout << data << endl;
@@ -62,7 +75,7 @@ string sort_worker::ability(string data, string args) {
 	//}
 	//cout << "dhgfhjd" << endl;
 	while (getline(stream, line)) {
-		cout << "dhgfhjd" << endl;
+		//cout << "dhgfhjd" << endl;
 		text.push_back(line);
 	}
 	std::sort(text.begin(), text.end(), less<string>());
@@ -74,6 +87,9 @@ string sort_worker::ability(string data, string args) {
 }
 
 string replace_worker::ability(string data, string args) {
+	replace_validator val;
+	val.input_validation(args);
+
 	string from, to;
 	char* newdata = const_cast<char*>(args.c_str());
 	//strcpy(newdata, data.c_str());
@@ -92,10 +108,12 @@ string replace_worker::ability(string data, string args) {
 }
 
 string dump_worker::ability(string data, string args) {
+	dump_validator val;
+	val.input_validation(args);
+
 	fstream file;
 	file.open(args);
-	file << data;
-	data.clear();
+	file << data; 
 	return data;
 }
 
