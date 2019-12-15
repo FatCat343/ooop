@@ -26,13 +26,15 @@ int main() {
 			string args = pars.getargs();
 			cout << name << "-" << args << "-" << endl;
 			try {
-				if (workflow.end() != workflow.find(num)) throw num;
+				if (workflow.find(num) != workflow.end()) throw exception("number was used several times");
 			}
-			catch (int num) {
-				cout << "Number" << num << "was used several times" << endl;
+			catch (const exception &err) {
+				cout << err.what() << endl;
+				return 0;
 			}
 			workflow[num] = name;
 			arguments[num] = args;
+			cout << num << endl;
 		}
 		//cout << "parametres are : " << num  << " , "<< name << " , " << args << endl;
 	}
@@ -42,16 +44,25 @@ int main() {
 		size_t instruction = pars.InstructionNum();
 		cout << instruction << endl; 
 		try {
-			if ((workflow[instruction] == "readfile") && (iteration != 0)) throw instruction;
-			if ((workflow[instruction] == "writefile") && (!(pars.EndOfFile()))) throw instruction;
-			if (workflow.find(instruction) == workflow.end()) throw instruction; //existing of instruction
+			if (workflow.find(instruction) == workflow.end()) throw exception("number does not exist"); //existing of instruction
+			if ((workflow[instruction] == "readfile") && (iteration != 0)) throw exception("readfile placed wrong");
+			if ((workflow[instruction] != "readfile") && (iteration == 0)) throw exception("readfile placed wrong");
+			if ((workflow[instruction] == "writefile") && (!(pars.EndOfFile()))) throw exception("writefile placed wrong");	
+			//cout << workflow.count(instruction) << endl;
 		}
-		catch (int x){
-			cout << "wrong accessing to file in" << x << "line" << endl; 
+		catch (const exception err) {
+			cout << err.what() << endl;
+			return 0;
 		}
-		text = workers[workflow[instruction]]->ability(text, arguments[instruction]);
-		
+
+		try {
+			text = workers[workflow[instruction]]->ability(text, arguments[instruction]);
+		}
+		catch (exception err) {
+			return 0;
+		}
 		cout << text << endl;
+		//cout << "dhgffkjhg" << endl;
 		cout << endl;
 		iteration++;
 

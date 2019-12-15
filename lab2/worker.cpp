@@ -2,7 +2,13 @@
 #include "validator.h"
 string readfile_worker::ability(string data, string args) {
 	read_validator val;
-	val.input_validation(args);
+	try {
+		val.input_validation(args);
+	}
+	catch (exception err) { 
+		throw exception(); 
+	}
+
 	
 	ifstream file;
 	string text;
@@ -19,7 +25,12 @@ string readfile_worker::ability(string data, string args) {
 
 string writefile_worker::ability(string data, string args) {
 	write_validator val;
-	val.input_validation(args);
+	try {
+		val.input_validation(args);
+	}
+	catch (exception err) {
+		throw exception();
+	}
 	
 	ofstream file;
 	file.open(args);
@@ -31,7 +42,12 @@ string writefile_worker::ability(string data, string args) {
 
 string grep_worker::ability(string data, string args) {
 	grep_validator val;
-	val.input_validation(args);
+	try {
+		val.input_validation(args);
+	}
+	catch (exception err) {
+		throw exception();
+	}
 	
 	string line;
 	char * newdata = const_cast<char*>(data.c_str());
@@ -59,7 +75,12 @@ string grep_worker::ability(string data, string args) {
 
 string sort_worker::ability(string data, string args) {
 	sort_validator val;
-	val.input_validation(args);
+	try {
+		val.input_validation(args);
+	}
+	catch (exception err) {
+		throw exception();
+	}
 
 	vector <string> text;
 	string line;
@@ -88,7 +109,12 @@ string sort_worker::ability(string data, string args) {
 
 string replace_worker::ability(string data, string args) {
 	replace_validator val;
-	val.input_validation(args);
+	try {
+		val.input_validation(args);
+	}
+	catch (exception err) {
+		throw exception();
+	}
 
 	string from, to;
 	char* newdata = const_cast<char*>(args.c_str());
@@ -97,10 +123,12 @@ string replace_worker::ability(string data, string args) {
 	to = strtok(NULL, " ");
 	//cout << from << "   " << to << endl;
 	size_t start = 0;
-	while (start <( data.length() - from.length())) {
+	//cout << data.length() << endl;
+	while (start < (data.length() - from.length())) {
 		start = data.find(from, start);
-		cout << start << " && " << data.length() << endl;
-		if (start >= data.length()) break;
+		//cout << start << " && " << data.length() << endl;
+		if (start >= data.length()) return data;
+		//cout << "kjfkgjk" << endl;
 		data.replace(start, from.length(), to);
 		start = start + to.length();
 	}
@@ -109,8 +137,12 @@ string replace_worker::ability(string data, string args) {
 
 string dump_worker::ability(string data, string args) {
 	dump_validator val;
-	val.input_validation(args);
-
+	try {
+		val.input_validation(args);
+	}
+	catch (exception err) {
+		throw exception();
+	}
 	fstream file;
 	file.open(args);
 	file << data; 
